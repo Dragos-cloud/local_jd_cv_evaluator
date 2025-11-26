@@ -1,0 +1,2693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JD Analysis & CV-Job Matcher - Standalone AI Analysis Tool</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        /* CV-Job Matcher Standalone Styles */
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --error-color: #dc2626;
+            --background-color: #f8fafc;
+            --surface-color: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --border-radius: 8px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --transition: all 0.2s ease-in-out;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .header-content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-content p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            font-size: 0.6rem;
+        }
+
+        .status-dot.connected {
+            color: var(--success-color);
+        }
+
+        .status-dot.disconnected {
+            color: var(--error-color);
+        }
+
+        .status-dot.connecting {
+            color: var(--warning-color);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Sections */
+        section {
+            background: var(--surface-color);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        section h2, section h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        section h2 {
+            font-size: 1.5rem;
+        }
+
+        section h3 {
+            font-size: 1.25rem;
+        }
+
+        /* LM Studio Section */
+        .mode-section {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border: 2px solid var(--primary-color);
+        }
+
+        .mode-section h2 {
+            margin-bottom: 1rem;
+        }
+
+        .mode-section p {
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        /* LM Studio Configuration */
+        .api-config {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-top: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .api-config.show {
+            display: block;
+        }
+
+        .config-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: flex-end;
+        }
+
+        .config-col {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .config-col-narrow {
+            flex: 0 0 200px;
+            min-width: 200px;
+            max-width: 200px;
+        }
+
+        .config-col-wide {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .config-col-full {
+            flex: 1;
+            width: 100%;
+        }
+
+        .config-col label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .status-display {
+            padding: 0.5rem;
+            border-radius: 4px;
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+            font-size: 0.85rem;
+            min-height: 2.5rem;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            word-break: break-word;
+            line-height: 1.2;
+        }
+
+        .model-select-container {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .model-select-container select {
+            flex: 1;
+            margin: 0;
+            min-width: 0; /* Allows flex item to shrink below its content size */
+        }
+
+        .refresh-btn {
+            padding: 0.5rem 0.75rem !important;
+            min-width: auto !important;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .help-text {
+            color: #6b7280;
+            font-size: 12px;
+            display: block;
+            margin-top: 0.25rem;
+            font-style: italic;
+        }
+
+        .privacy-note {
+            color: var(--text-secondary);
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f59e0b;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        /* Responsive design for config */
+        @media (max-width: 768px) {
+            .config-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .config-col,
+            .config-col-narrow,
+            .config-col-wide,
+            .config-col-full {
+                flex: none;
+                width: 100%;
+                min-width: auto;
+                max-width: none;
+            }
+        }
+
+        .api-inputs {
+            width: 100%;
+        }
+
+        /* Form Elements */
+        .form-select, .form-input {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--surface-color);
+        }
+
+        .form-select:focus, .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-family: 'Inter', monospace;
+            resize: vertical;
+            transition: var(--transition);
+            min-height: 300px;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Input Section */
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .input-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .required {
+            color: var(--error-color);
+            font-size: 0.8rem;
+        }
+
+        .optional {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-style: italic;
+        }
+
+        .input-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .char-count {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .focus-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        /* Options Section */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            user-select: none;
+        }
+
+        .checkbox-label:hover {
+            background: #f8fafc;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            display: none;
+        }
+
+        .checkmark {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .checkbox-label input[type="checkbox"]:checked + .checkmark {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #475569;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Action Section */
+        .action-section {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        #analyze-btn {
+            font-size: 1.1rem;
+            padding: 1rem 2rem;
+        }
+
+        #analyze-btn.analyzing {
+            background: var(--warning-color);
+            pointer-events: none;
+        }
+
+        #analyze-btn.analyzing i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Results Section */
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .results-controls {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .results-content {
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .analysis-output {
+            padding: 1.5rem;
+            background: #fafafa;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.7;
+            max-height: 600px;
+            overflow-y: auto;
+            border-radius: var(--border-radius);
+        }
+
+        /* Formatted analysis content styles */
+        .analysis-output .analysis-h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 1.5rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .analysis-output .analysis-h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 1.2rem 0 0.8rem 0;
+        }
+
+        .analysis-output .analysis-h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 1rem 0 0.6rem 0;
+        }
+
+        .analysis-output .analysis-paragraph {
+            margin: 0.8rem 0;
+            text-align: justify;
+        }
+
+        .analysis-output .analysis-list {
+            margin: 0.8rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .analysis-output .analysis-list li {
+            margin: 0.4rem 0;
+        }
+
+        .analysis-output strong {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .analysis-output em {
+            font-style: italic;
+            color: #666;
+        }
+
+        /* Markdown table styles */
+        .markdown-table-wrapper {
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: var(--border-radius);
+        }
+
+        .markdown-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 0.9rem;
+        }
+
+        .markdown-table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 2px solid var(--primary-dark);
+        }
+
+        .markdown-table td {
+            padding: 0.8rem;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+
+        .markdown-table tr:nth-child(even) td {
+            background: #f8f9fa;
+        }
+
+        .markdown-table tr:hover td {
+            background: #e3f2fd;
+        }
+
+        /* Code styling */
+        .analysis-output .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Fira Code', 'Monaco', 'Cascadia Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .analysis-output .inline-code {
+            background: #f1f5f9;
+            color: #1e293b;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Fira Code', 'Monaco', 'Cascadia Code', monospace;
+            font-size: 0.9em;
+        }
+
+        /* Context Menu Styles */
+        .context-menu {
+            position: fixed;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 0.5rem 0;
+            z-index: 10000;
+            min-width: 160px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .context-menu-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-color);
+            transition: background-color 0.2s ease;
+            justify-content: space-between;
+        }
+
+        .context-menu-item .shortcut {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            margin-left: auto;
+            font-family: 'Fira Code', 'Monaco', 'Cascadia Code', monospace;
+            background: rgba(0,0,0,0.1);
+            padding: 0.1rem 0.3rem;
+            border-radius: 3px;
+        }
+
+        .context-menu-item:hover .shortcut {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .context-menu-item:hover:not(.disabled) {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .context-menu-item.disabled {
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .context-menu-item i {
+            width: 16px;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        .context-menu-separator {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 0.25rem 0;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toast {
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            color: white;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            transform: translateX(100%);
+            animation: slideIn 0.3s ease forwards;
+        }
+
+        .toast.success {
+            background: var(--success-color);
+        }
+
+        .toast.error {
+            background: var(--error-color);
+        }
+
+        .toast.warning {
+            background: var(--warning-color);
+        }
+
+        .toast.info {
+            background: var(--primary-color);
+        }
+
+        @keyframes slideIn {
+            to { transform: translateX(0); }
+        }
+
+        .toast.fade-out {
+            animation: slideOut 0.3s ease forwards;
+        }
+
+        @keyframes slideOut {
+            to { transform: translateX(100%); }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            margin-top: 3rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 0.5rem;
+            }
+            
+            .header-content h1 {
+                font-size: 2rem;
+            }
+            
+            .input-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .results-controls {
+                justify-content: center;
+            }
+            
+            .status-bar {
+                gap: 1rem;
+            }
+            
+            .action-section {
+                flex-direction: column;
+            }
+
+            .api-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 1.5rem 0;
+            }
+            
+            .header-content h1 {
+                font-size: 1.5rem;
+            }
+            
+            section {
+                padding: 1rem;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background-color: #0f172a;
+                --surface-color: #1e293b;
+                --text-primary: #f1f5f9;
+                --text-secondary: #94a3b8;
+                --border-color: #334155;
+            }
+            
+            .analysis-output {
+                background: #0f172a;
+                color: #f1f5f9;
+            }
+            
+            .form-textarea, .form-select, .form-input {
+                background: var(--surface-color);
+                color: var(--text-primary);
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <center><h2><p>Standalone AI-Powered CV-JD Analysis Tool</p></h2></center>
+                <div class="status-bar">
+                    <div class="status-item" id="connection-status">
+                        <i class="fas fa-circle status-dot disconnected"></i>
+                        <span>LM Studio: Not Connected</span>
+                    </div>
+                    <div class="status-item" id="model-status">
+                        <i class="fas fa-robot"></i>
+                        <span>No Model Selected</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- LM Studio Configuration -->
+            <section class="mode-section">
+                <h2><i class="fas fa-robot"></i> LM Studio Configuration</h2>
+                <p><strong>Privacy First:</strong> This application works exclusively with LM Studio for complete privacy.</p>
+                <p><strong>Simple Setup:</strong> Just start LM Studio's local server and load a model.</p>
+                
+                <div class="api-config show" id="api-config">
+                    <div class="api-inputs">
+                        <div class="config-row">
+                            <div class="config-col-narrow">
+                                <label for="lm-status">Connection Status:</label>
+                                <div id="lm-status" class="status-display">
+                                    Not tested
+                                </div>
+                            </div>
+                            <div class="config-col-wide">
+                                <label for="lm-base-url">Base URL:</label>
+                                <input type="text" id="lm-base-url" class="form-input" value="http://localhost:1234" readonly>
+                            </div>
+                        </div>
+                        
+                        <div class="config-row">
+                            <div class="config-col-full">
+                                <label for="lm-model-select">Available Models:</label>
+                                <div class="model-select-container">
+                                    <select id="lm-model-select" class="form-input">
+                                        <option value="">Select a model...</option>
+                                    </select>
+                                    <button type="button" id="refresh-models-btn" class="btn btn-secondary refresh-btn" title="Refresh available models">
+                                        🔄
+                                    </button>
+                                </div>
+                                <small id="lm-model-status" class="help-text">
+                                    Click refresh to load available local models
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="config-row">
+                            <div class="config-col">
+                                <button type="button" id="test-connection-btn" class="btn btn-secondary">
+                                    <i class="fas fa-plug"></i> Test Connection
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="privacy-note">
+                        <i class="fas fa-shield-alt"></i> No API keys, no cloud services, no complex configuration required. All data stays on your computer.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Input Section -->
+            <section class="input-section">
+                <div class="input-grid">
+                    <!-- Job Description Input -->
+                    <div class="input-group">
+                        <label for="jd-input">
+                            <i class="fas fa-briefcase"></i> Job Description
+                            <span class="required">*</span>
+                        </label>
+                        <textarea 
+                            id="jd-input" 
+                            class="form-textarea" 
+                            placeholder="Paste the job description here..."
+                            rows="12"
+                            required
+                        ></textarea>
+                        <div class="input-info">
+                            <span class="char-count" id="jd-char-count">0 characters</span>
+                        </div>
+                    </div>
+
+                    <!-- CV Input -->
+                    <div class="input-group">
+                        <label for="cv-input">
+                            <i class="fas fa-user"></i> Your CV/Resume
+                            <span class="optional">(optional)</span>
+                        </label>
+                        <textarea 
+                            id="cv-input" 
+                            class="form-textarea" 
+                            placeholder="Paste your CV/Resume here (optional - required for CV-specific analysis)..."
+                            rows="12"
+                        ></textarea>
+                        <div class="input-info">
+                            <span class="char-count" id="cv-char-count">0 characters</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Focus -->
+                <div class="focus-group">
+                    <label for="additional-focus">
+                        <i class="fas fa-bullseye"></i> Additional Focus Areas (Optional)
+                    </label>
+                    <input 
+                        type="text" 
+                        id="additional-focus" 
+                        class="form-input" 
+                        placeholder="e.g., remote work, salary expectations, growth opportunities, technical skills..."
+                    >
+                </div>
+            </section>
+
+            <!-- Analysis Options -->
+            <section class="options-section">
+                <h3><i class="fas fa-list-check"></i> Analysis Options</h3>
+                <div class="options-grid">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="jd-requirements" checked>
+                        <span class="checkmark"></span>
+                        JD Requirements Analysis
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="cv-fit" checked>
+                        <span class="checkmark"></span>
+                        CV Fit Assessment
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="gap-identification" checked>
+                        <span class="checkmark"></span>
+                        Skills Gap Identification
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="cv-optimization" checked>
+                        <span class="checkmark"></span>
+                        CV Optimization
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="corporate-jargon" checked>
+                        <span class="checkmark"></span>
+                        Corporate Jargon Translation
+                    </label>
+                </div>
+            </section>
+
+            <!-- Action Buttons -->
+            <section class="action-section">
+                <button id="analyze-btn" class="btn btn-primary">
+                    <i class="fas fa-brain"></i>
+                    <span>Analyze CV-Job Match</span>
+                </button>
+                <button id="clear-all" class="btn btn-secondary">
+                    <i class="fas fa-eraser"></i>
+                    Clear All
+                </button>
+            </section>
+
+            <!-- Context Menu -->
+            <div id="context-menu" class="context-menu">
+                <div class="context-menu-item" data-action="cut">
+                    <i class="fas fa-cut"></i>
+                    <span>Cut</span>
+                    <span class="shortcut">Ctrl+X</span>
+                </div>
+                <div class="context-menu-item" data-action="copy">
+                    <i class="fas fa-copy"></i>
+                    <span>Copy</span>
+                    <span class="shortcut">Ctrl+C</span>
+                </div>
+                <div class="context-menu-item" data-action="paste">
+                    <i class="fas fa-paste"></i>
+                    <span>Paste</span>
+                    <span class="shortcut">Ctrl+V</span>
+                </div>
+                <div class="context-menu-separator"></div>
+                <div class="context-menu-item" data-action="select-all">
+                    <i class="fas fa-highlighter"></i>
+                    <span>Select All</span>
+                    <span class="shortcut">Ctrl+A</span>
+                </div>
+                <div class="context-menu-item" data-action="clear">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Clear</span>
+                </div>
+                <div class="context-menu-separator"></div>
+                <div class="context-menu-item" data-action="undo">
+                    <i class="fas fa-undo"></i>
+                    <span>Undo</span>
+                    <span class="shortcut">Ctrl+Z</span>
+                </div>
+                <div class="context-menu-item" data-action="redo">
+                    <i class="fas fa-redo"></i>
+                    <span>Redo</span>
+                    <span class="shortcut">Ctrl+Y</span>
+                </div>
+            </div>
+
+            <!-- Job Description Analysis Section -->
+            <section class="results-section" id="jd-analysis-section" style="display: none;">
+                <div class="results-header">
+                    <h3><i class="fas fa-briefcase"></i> Job Description Analysis</h3>
+                    <div class="results-controls">
+                        <button id="copy-jd-analysis" class="btn btn-outline">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <button id="export-jd-txt" class="btn btn-outline">
+                            <i class="fas fa-file-text"></i> Export TXT
+                        </button>
+                        <button id="export-jd-docx" class="btn btn-outline">
+                            <i class="fas fa-file-word"></i> Export DOCX
+                        </button>
+                    </div>
+                </div>
+                <div class="results-content">
+                    <div id="jd-analysis-results" class="analysis-output"></div>
+                </div>
+            </section>
+
+            <!-- CV-Job Matching Section -->
+            <section class="results-section" id="cv-matching-section" style="display: none;">
+                <div class="results-header">
+                    <h3><i class="fas fa-chart-line"></i> CV-Job Matching & Optimization Recommendations</h3>
+                    <div class="results-controls">
+                        <button id="export-json" class="btn btn-outline">
+                            <i class="fas fa-download"></i> Export JSON
+                        </button>
+                        <button id="export-txt" class="btn btn-outline">
+                            <i class="fas fa-file-alt"></i> Export Complete Report
+                        </button>
+                        <button id="export-docx" class="btn btn-outline">
+                            <i class="fas fa-file-word"></i> Export DOCX
+                        </button>
+                        <button id="copy-cv-matching" class="btn btn-outline">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+                <div class="results-content">
+                    <div id="cv-matching-results" class="analysis-output"></div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 ORAND Advisors - CV-Job Matcher Standalone. AI-powered local analysis tool.</p>
+            <p>Works entirely offline - your data never leaves your device</p>
+        </footer>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script>
+        /**
+         * CV-Job Matcher Standalone Application
+         * Self-contained CV-JD analysis tool
+         */
+
+        class CVJobMatcherStandalone {
+            constructor() {
+                this.analysisTemplates = this.initializeAnalysisTemplates();
+                this.lastJdAnalysis = null;
+                this.lastCvMatching = null;
+                this.initializeApp();
+            }
+
+            initializeApp() {
+                this.initializeElements();
+                this.setupEventListeners();
+                this.loadSavedSettings();
+                this.validateInputs();
+            }
+
+            initializeElements() {
+                // LM Studio elements
+                this.apiConfig = document.getElementById('api-config');
+                this.lmBaseUrl = document.getElementById('lm-base-url');
+                this.lmStatus = document.getElementById('lm-status');
+                this.lmModelSelect = document.getElementById('lm-model-select');
+                this.lmModelStatus = document.getElementById('lm-model-status');
+                this.refreshModelsBtn = document.getElementById('refresh-models-btn');
+                this.testConnectionBtn = document.getElementById('test-connection-btn');
+                
+                // Input elements
+                this.jdInput = document.getElementById('jd-input');
+                this.cvInput = document.getElementById('cv-input');
+                this.additionalFocus = document.getElementById('additional-focus');
+                this.jdCharCount = document.getElementById('jd-char-count');
+                this.cvCharCount = document.getElementById('cv-char-count');
+                
+                // Option checkboxes
+                this.jdRequirements = document.getElementById('jd-requirements');
+                this.cvFit = document.getElementById('cv-fit');
+                this.gapIdentification = document.getElementById('gap-identification');
+                this.cvOptimization = document.getElementById('cv-optimization');
+                this.corporateJargon = document.getElementById('corporate-jargon');
+                
+                // Action buttons
+                this.analyzeBtn = document.getElementById('analyze-btn');
+                this.clearAllBtn = document.getElementById('clear-all');
+                
+                // Results elements
+                this.jdAnalysisSection = document.getElementById('jd-analysis-section');
+                this.jdAnalysisResults = document.getElementById('jd-analysis-results');
+                this.copyJdAnalysisBtn = document.getElementById('copy-jd-analysis');
+                this.exportJdTxtBtn = document.getElementById('export-jd-txt');
+                this.exportJdDocxBtn = document.getElementById('export-jd-docx');
+                
+                this.cvMatchingSection = document.getElementById('cv-matching-section');
+                this.cvMatchingResults = document.getElementById('cv-matching-results');
+                this.exportJsonBtn = document.getElementById('export-json');
+                this.exportTxtBtn = document.getElementById('export-txt');
+                this.exportDocxBtn = document.getElementById('export-docx');
+                this.copyCvMatchingBtn = document.getElementById('copy-cv-matching');
+                
+                // Context menu
+                this.contextMenu = document.getElementById('context-menu');
+                this.currentContextTarget = null;
+                
+                // Toast container
+                this.toastContainer = document.getElementById('toast-container');
+            }
+
+            setupEventListeners() {
+                // Input validation and character counting
+                this.jdInput.addEventListener('input', () => {
+                    this.updateCharCount(this.jdInput, this.jdCharCount);
+                    this.validateInputs();
+                });
+
+                this.cvInput.addEventListener('input', () => {
+                    this.updateCharCount(this.cvInput, this.cvCharCount);
+                    this.validateInputs();
+                });
+
+                // Context menu event listeners
+                this.setupContextMenu();
+
+                // Checkbox event listeners
+                [this.jdRequirements, this.cvFit, this.gapIdentification, this.cvOptimization, this.corporateJargon].forEach(checkbox => {
+                    checkbox.addEventListener('change', () => {
+                        this.validateInputs();
+                    });
+                });
+
+                // Action buttons
+                this.analyzeBtn.addEventListener('click', () => {
+                    this.startAnalysis();
+                });
+
+                this.clearAllBtn.addEventListener('click', () => {
+                    this.clearAllInputs();
+                });
+
+                // Copy buttons
+                this.copyJdAnalysisBtn.addEventListener('click', () => {
+                    const content = this.lastJdAnalysis && !this.lastJdAnalysis.includes('not requested') 
+                        ? this.lastJdAnalysis : null;
+                    if (content) {
+                        this.copyToClipboard(content, 'JD Analysis');
+                    } else {
+                        this.showToast('No JD analysis to copy', 'warning');
+                    }
+                });
+
+                this.copyCvMatchingBtn.addEventListener('click', () => {
+                    const content = this.lastCvMatching && !this.lastCvMatching.includes('not requested') 
+                        ? this.lastCvMatching : null;
+                    if (content) {
+                        this.copyToClipboard(content, 'CV Matching Analysis');
+                    } else {
+                        this.showToast('No CV matching analysis to copy', 'warning');
+                    }
+                });
+
+                // Export buttons
+                this.exportJdTxtBtn.addEventListener('click', () => {
+                    const content = this.lastJdAnalysis && !this.lastJdAnalysis.includes('not requested') 
+                        ? this.lastJdAnalysis : null;
+                    if (content) {
+                        this.exportText(this.formatTextForExport(content), 'jd-analysis.txt');
+                    } else {
+                        this.showToast('No JD analysis to export', 'warning');
+                    }
+                });
+
+                this.exportJdDocxBtn.addEventListener('click', () => {
+                    const content = this.lastJdAnalysis && !this.lastJdAnalysis.includes('not requested') 
+                        ? this.lastJdAnalysis : null;
+                    if (content) {
+                        const htmlSection = '<h1>Job Description Analysis</h1>' + this.formatMarkdownToHTML(content);
+                        this.exportDocx(htmlSection, 'jd-analysis.docx');
+                    } else {
+                        this.showToast('No JD analysis to export', 'warning');
+                    }
+                });
+
+                this.exportTxtBtn.addEventListener('click', () => {
+                    this.exportComprehensiveReport();
+                });
+
+                this.exportDocxBtn.addEventListener('click', () => {
+                    this.exportComprehensiveReportDocx();
+                });
+
+                this.exportJsonBtn.addEventListener('click', () => {
+                    this.exportJSON();
+                });
+
+                // LM Studio event listeners
+                this.refreshModelsBtn.addEventListener('click', () => {
+                    this.refreshLMStudioModels();
+                });
+
+                this.testConnectionBtn.addEventListener('click', () => {
+                    this.testLMStudioConnection();
+                });
+
+                this.lmModelSelect.addEventListener('change', () => {
+                    const selectedModel = this.lmModelSelect.value;
+                    if (selectedModel) {
+                        localStorage.setItem('lmStudioSelectedModel', selectedModel);
+                        this.updateModelStatus(selectedModel);
+                    } else {
+                        this.updateModelStatus('');
+                    }
+                    this.validateInputs();
+                });
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey || e.metaKey) {
+                        switch (e.key) {
+                            case 'Enter':
+                                if (!this.analyzeBtn.disabled) {
+                                    e.preventDefault();
+                                    this.startAnalysis();
+                                }
+                                break;
+                        }
+                    }
+                });
+            }
+
+
+
+            updateCharCount(textarea, countElement) {
+                const count = textarea.value.length;
+                countElement.textContent = `${count.toLocaleString()} characters`;
+                
+                // Color code based on length
+                if (count > 50000) {
+                    countElement.style.color = 'var(--error-color)';
+                } else if (count > 30000) {
+                    countElement.style.color = 'var(--warning-color)';
+                } else {
+                    countElement.style.color = 'var(--text-secondary)';
+                }
+            }
+
+            validateInputs() {
+                const hasJD = this.jdInput.value.trim().length > 0;
+                const hasCV = this.cvInput.value.trim().length > 0;
+                const hasModel = this.lmModelSelect.value.trim();
+                
+                // Check if at least one analysis option is selected
+                const options = this.getAnalysisOptions();
+                const hasAnyOption = Object.values(options).some(option => option);
+                
+                // Check if CV-related options require CV input
+                const cvRelatedOptions = options.cv_fit_assessment || options.gap_identification || options.cv_optimization;
+                const cvRequiredButMissing = cvRelatedOptions && !hasCV;
+                
+                // Enable button only if all conditions are met
+                const isValid = hasJD && hasModel && hasAnyOption && !cvRequiredButMissing;
+                this.analyzeBtn.disabled = !isValid;
+                
+                // Update analyze button text to provide feedback
+                if (!hasAnyOption) {
+                    this.analyzeBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Select Analysis Options';
+                } else if (cvRequiredButMissing) {
+                    this.analyzeBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> CV Required for Selected Options';
+                } else if (!hasModel) {
+                    this.analyzeBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Select LM Studio Model';
+                } else if (!hasJD) {
+                    this.analyzeBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Enter Job Description';
+                } else {
+                    this.analyzeBtn.innerHTML = '<i class="fas fa-brain"></i> Analyze CV-Job Match';
+                }
+            }
+
+            getAnalysisOptions() {
+                return {
+                    jd_requirements_analysis: this.jdRequirements.checked,
+                    cv_fit_assessment: this.cvFit.checked,
+                    gap_identification: this.gapIdentification.checked,
+                    cv_optimization: this.cvOptimization.checked,
+                    corporate_jargon: this.corporateJargon.checked
+                };
+            }
+
+            async startAnalysis() {
+                if (this.analyzeBtn.disabled) return;
+
+                // Explicitly clear previous analysis state for fresh start
+                this.clearAnalysisState();
+                
+                this.setAnalyzing(true);
+                this.hideResults();
+
+                try {
+                    const results = await this.performAPIAnalysis();
+
+                    this.displayResults(results.jdAnalysis, results.cvMatching);
+                    this.showToast('Analysis completed successfully!', 'success');
+                } catch (error) {
+                    console.error('Analysis failed:', error);
+                    this.showToast(`Analysis failed: ${error.message}`, 'error');
+                } finally {
+                    this.setAnalyzing(false);
+                }
+            }
+
+            async performAPIAnalysis() {
+                const baseUrl = this.lmBaseUrl.value.trim();
+                const model = this.lmModelSelect.value.trim();
+                const jdText = this.jdInput.value.trim();
+                const cvText = this.cvInput.value.trim();
+                const additionalFocus = this.additionalFocus.value.trim();
+                const options = this.getAnalysisOptions();
+
+                if (!model) {
+                    throw new Error('Please select a model from the dropdown. Click refresh to load available models.');
+                }
+                
+                // Log request for debugging (without sensitive data)
+                console.log(`🔄 Starting fresh analysis request at ${new Date().toISOString()}`);
+                console.log('📋 Analysis options:', Object.entries(options).filter(([k,v]) => v).map(([k,v]) => k));
+
+                const prompt = this.buildAnalysisPrompt(jdText, cvText, additionalFocus, options);
+                const chatEndpoint = `${baseUrl}/v1/chat/completions`;
+
+                // Generate unique request ID for conversation isolation
+                const requestId = Date.now() + Math.random().toString(36).substr(2, 9);
+                
+                const response = await fetch(chatEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Request-ID': requestId  // Help ensure request isolation
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        messages: [
+                            // Fresh conversation - no previous context
+                            { 
+                                role: 'system', 
+                                content: 'You are a professional HR analyst providing independent analysis. Each request is completely separate with no memory of previous conversations.' 
+                            },
+                            { role: 'user', content: prompt }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 8000,
+                        stream: false,
+                        // Additional parameters to ensure fresh context
+                        frequency_penalty: 0,
+                        presence_penalty: 0,
+                        top_p: 1.0
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`LM Studio API error: ${response.status} ${response.statusText}. ${errorText}`);
+                }
+
+                const data = await response.json();
+                const fullResponse = data.choices?.[0]?.message?.content || '';
+
+                // Log successful response (without content for privacy)
+                console.log(`✅ Fresh analysis received (${fullResponse.length} characters) at ${new Date().toISOString()}`);
+
+                if (!fullResponse) {
+                    throw new Error('No response received from LM Studio. Please check your model and try again.');
+                }
+
+                // Split response based on what was actually requested
+                const hasCVAnalysis = options.cv_fit_assessment || options.gap_identification || options.cv_optimization;
+                const hasJDAnalysis = options.jd_requirements_analysis || options.corporate_jargon;
+
+                let jdAnalysis = '';
+                let cvMatching = '';
+
+                if (hasJDAnalysis && hasCVAnalysis) {
+                    // Both JD and CV analysis requested - split the response
+                    const cvSectionMatch = fullResponse.match(/(## CV FIT ASSESSMENT|## SKILLS GAP IDENTIFICATION|## CV OPTIMIZATION RECOMMENDATIONS)/i);
+                    
+                    if (cvSectionMatch) {
+                        const splitIndex = fullResponse.indexOf(cvSectionMatch[0]);
+                        jdAnalysis = fullResponse.substring(0, splitIndex).trim();
+                        cvMatching = fullResponse.substring(splitIndex).trim();
+                    } else {
+                        // Couldn't find CV section, put everything in JD analysis
+                        jdAnalysis = fullResponse.trim();
+                        cvMatching = 'CV analysis was requested but not found in the response.';
+                    }
+                } else if (hasJDAnalysis && !hasCVAnalysis) {
+                    // Only JD analysis requested
+                    jdAnalysis = fullResponse.trim();
+                    cvMatching = 'CV analysis not requested.';
+                } else if (!hasJDAnalysis && hasCVAnalysis) {
+                    // Only CV analysis requested
+                    jdAnalysis = 'JD Requirements Analysis not requested.';
+                    cvMatching = fullResponse.trim();
+                } else {
+                    // Neither requested (shouldn't happen due to validation)
+                    jdAnalysis = 'No analysis requested.';
+                    cvMatching = 'No analysis requested.';
+                }
+
+                return { jdAnalysis, cvMatching };
+            }
+
+
+            buildAnalysisPrompt(jdText, cvText, additionalFocus, options) {
+                let prompt = "You are an expert career counselor and job market analyst. ";
+                prompt += "Analyze ONLY the specific areas requested below. Do not provide analysis or recommendations for areas that are not explicitly requested.\n\n";
+
+                // Build the analysis sections based on selected options
+                const analysisInstructions = [];
+
+                if (options.jd_requirements_analysis) {
+                    analysisInstructions.push(`
+## JD REQUIREMENTS ANALYSIS
+Analyze the job description and provide comprehensive insights:
+
+**Technical Skills Required:**
+- Programming languages, frameworks, tools, and technologies
+- Certifications or specific qualifications mentioned
+- Industry-specific knowledge or domain expertise
+- Level of proficiency expected (beginner, intermediate, expert)
+
+**Essential Soft Skills:**
+- Communication, leadership, teamwork capabilities
+- Problem-solving and analytical thinking requirements
+- Adaptability and learning mindset indicators
+- Customer-facing or stakeholder interaction skills
+
+**Experience & Qualifications:**
+- Years of experience required vs. preferred
+- Educational background expectations
+- Previous role or industry experience needed
+- Seniority level and career progression indicators
+
+**Role Analysis:**
+- Core responsibilities and daily tasks
+- Team structure and reporting relationships
+- Growth opportunities and career advancement potential
+- Work environment and company culture indicators
+
+**Red Flags & Concerns:**
+- Unrealistic requirements or expectations combinations
+- Potential work-life balance issues
+- Compensation transparency or lack thereof
+- Estimated level of stress or workload on a scale from 1 to 10 where 10 is most stressful
+- Role clarity issues or vague responsibilities`);
+                }
+
+                if (options.cv_fit_assessment && cvText) {
+                    analysisInstructions.push(`
+## CV FIT ASSESSMENT
+Perform a detailed comparison between the CV and job requirements:
+
+**Technical Skills Match:**
+- Programming languages and technologies: direct matches vs. transferable skills
+- Tools and frameworks: experience level assessment
+- Certifications and qualifications: relevance and currency
+- Domain expertise: industry knowledge and specialized skills
+
+**Experience Alignment:**
+- Years of relevant experience vs. requirements
+- Previous roles and responsibilities matching
+- Project complexity and scale similarities
+- Leadership and team management experience
+
+**Soft Skills Evidence:**
+- Communication skills demonstrated through CV presentation
+- Leadership examples from previous roles
+- Problem-solving and analytical thinking indicators
+- Collaboration and teamwork evidence
+
+**Overall Compatibility:**
+- Provide a percentage match estimate (0-100%) with justification
+- Highlight strongest alignment areas
+- Identify potential concerns or mismatches
+- Assess career progression logic and trajectory fit`);
+                }
+
+                if (options.gap_identification && cvText) {
+                    analysisInstructions.push(`
+## SKILLS GAP IDENTIFICATION
+Identify specific gaps between the CV and job requirements:
+- Technical skills missing from the CV
+- Experience areas that need strengthening
+- Certifications or qualifications that would be beneficial
+- Specific recommendations to bridge identified gaps`);
+                }
+
+                if (options.cv_optimization && cvText) {
+                    analysisInstructions.push(`
+## CV OPTIMIZATION RECOMMENDATIONS
+Provide specific suggestions to improve the CV for this job:
+- Keywords from the JD to incorporate
+- Sections to emphasize or reorganize
+- Achievements to highlight with metrics
+- Suggested role clarification questions for the interview
+- Format improvements for better impact
+- Application strategy recommendations`);
+                }
+
+                if (options.corporate_jargon) {
+                    analysisInstructions.push(`
+## CORPORATE JARGON TRANSLATION
+Identify and translate corporate buzzwords and jargon from the job description. Look for terms like these examples (but don't limit yourself to these):
+- Vague terms: "synergize", "leverage", "paradigm shift", "dynamic environment", "fast-paced"
+- Risk scores (1–10): scope creep, burnout, pay opacity, seniority mismatch, managerial red flags.
+- Responsibility dodging: "other duties as assigned", "wear many hats", "flexible approach"
+- Experience inflation: "rock star", "ninja", "guru", "thought leader"
+- Compensation hiding: "competitive salary", "equity participation", "performance-based"
+
+For each identified term provide:
+- The original job description jargon phrase
+- Plain English translation of what it actually means
+- What the company is really looking for or trying to say
+- Red flags or concerns the candidate should be aware of
+- Realistic expectations vs. the marketed description
+- Suggestions for clarifying questions to ask during the interview`);
+                }
+
+                if (analysisInstructions.length === 0) {
+                    prompt += "No specific analysis requested. Please select at least one analysis option.";
+                    return prompt;
+                }
+
+                prompt += "Please provide the following analysis sections:\n";
+                prompt += analysisInstructions.join("\n");
+                prompt += "\n\nDATA TO ANALYZE:\n";
+                prompt += `JOB DESCRIPTION:\n${jdText}\n\n`;
+                
+                if (cvText && (options.cv_fit_assessment || options.gap_identification || options.cv_optimization)) {
+                    prompt += `CANDIDATE'S CV:\n${cvText}\n\n`;
+                }
+                
+                if (additionalFocus) {
+                    prompt += `ADDITIONAL FOCUS: ${additionalFocus}\n\n`;
+                }
+
+                prompt += "IMPORTANT: Only provide analysis for the sections explicitly requested above. ";
+                prompt += "Do not include unrequested CV recommendations or job-matching advice unless specifically selected.";
+                
+                return prompt;
+            }
+
+
+
+            identifySkillsGaps(jdText, cvText) {
+                const gaps = [
+                    { skill: "Project Management", recommendation: "Consider obtaining PMP certification" },
+                    { skill: "Cloud Technologies", recommendation: "Gain experience with AWS or Azure" },
+                    { skill: "Data Analysis", recommendation: "Learn SQL and data visualization tools" },
+                    { skill: "Agile Methodologies", recommendation: "Get Scrum Master certification" }
+                ];
+
+                return gaps.slice(0, 3); // Return top 3 gaps
+            }
+
+            displayResults(jdAnalysis, cvMatching) {
+                // Store the raw analysis results
+                this.lastJdAnalysis = jdAnalysis;
+                this.lastCvMatching = cvMatching;
+                
+                // Check if sections contain meaningful content
+                const hasJdAnalysis = jdAnalysis && !jdAnalysis.includes('not requested') && jdAnalysis.trim() !== '';
+                const hasCvAnalysis = cvMatching && !cvMatching.includes('not requested') && cvMatching.trim() !== '';
+                
+                // Display JD analysis section if it has meaningful content
+                if (hasJdAnalysis) {
+                    this.jdAnalysisResults.innerHTML = this.formatMarkdownToHTML(jdAnalysis);
+                    this.jdAnalysisSection.style.display = 'block';
+                } else {
+                    this.jdAnalysisSection.style.display = 'none';
+                }
+                
+                // Display CV analysis section if it has meaningful content
+                if (hasCvAnalysis) {
+                    this.cvMatchingResults.innerHTML = this.formatMarkdownToHTML(cvMatching);
+                    this.cvMatchingSection.style.display = 'block';
+                } else {
+                    this.cvMatchingSection.style.display = 'none';
+                }
+                
+                // Scroll to the first visible section
+                if (hasJdAnalysis) {
+                    this.jdAnalysisSection.scrollIntoView({ behavior: 'smooth' });
+                } else if (hasCvAnalysis) {
+                    this.cvMatchingSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+
+            showResults() {
+                // This method is now handled by displayResults
+            }
+
+            hideResults() {
+                this.jdAnalysisSection.style.display = 'none';
+                this.cvMatchingSection.style.display = 'none';
+            }
+
+            setAnalyzing(isAnalyzing) {
+                this.analyzeBtn.disabled = isAnalyzing;
+                
+                if (isAnalyzing) {
+                    this.analyzeBtn.classList.add('analyzing');
+                    this.analyzeBtn.innerHTML = '<i class="fas fa-spinner"></i><span>Analyzing...</span>';
+                } else {
+                    this.analyzeBtn.classList.remove('analyzing');
+                    this.analyzeBtn.innerHTML = '<i class="fas fa-brain"></i><span>Analyze CV-Job Match</span>';
+                    this.validateInputs();
+                }
+            }
+
+            async copyToClipboard(text, type) {
+                if (!text) {
+                    this.showToast(`No ${type} to copy`, 'warning');
+                    return;
+                }
+
+                try {
+                    await navigator.clipboard.writeText(text);
+                    this.showToast(`${type} copied to clipboard`, 'success');
+                } catch (error) {
+                    console.error('Copy failed:', error);
+                    this.showToast(`Failed to copy ${type}`, 'error');
+                }
+            }
+
+            exportText(content, filename) {
+                if (!content) {
+                    this.showToast('No content to export', 'warning');
+                    return;
+                }
+
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = filename;
+                
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                this.showToast('File exported successfully', 'success');
+            }
+
+            exportDocx(htmlContent, filename) {
+                if (!htmlContent) {
+                    this.showToast('No content to export', 'warning');
+                    return;
+                }
+
+                if (!window.htmlDocx || typeof window.htmlDocx.asBlob !== 'function') {
+                    console.error('html-docx-js library is not available');
+                    this.showToast('DOCX export is not available in this browser session', 'error');
+                    return;
+                }
+
+                const docHtml = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${filename}</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 11pt; }
+        h1, h2, h3 { font-weight: bold; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #444; padding: 4px; }
+        code, pre { font-family: Consolas, "Courier New", monospace; }
+    </style>
+</head>
+<body>
+${htmlContent}
+</body>
+</html>`;
+
+                const blob = window.htmlDocx.asBlob(docHtml);
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = filename;
+
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                this.showToast('DOCX file exported successfully', 'success');
+            }
+
+            exportJSON() {
+                // Get meaningful content only
+                const jdContent = this.lastJdAnalysis && !this.lastJdAnalysis.includes('not requested') 
+                    ? this.lastJdAnalysis : null;
+                const cvContent = this.lastCvMatching && !this.lastCvMatching.includes('not requested') 
+                    ? this.lastCvMatching : null;
+                
+                if (!jdContent && !cvContent) {
+                    this.showToast('No analysis results to export', 'warning');
+                    return;
+                }
+
+                const data = {
+                    timestamp: new Date().toISOString(),
+                    inputs: {
+                        jobDescription: this.jdInput.value,
+                        cv: this.cvInput.value,
+                        additionalFocus: this.additionalFocus.value
+                    },
+                    analysisOptions: this.getAnalysisOptions(),
+                    results: {}
+                };
+
+                if (jdContent) {
+                    data.results.jobDescriptionAnalysis = jdContent;
+                }
+                
+                if (cvContent) {
+                    data.results.cvMatchingAnalysis = cvContent;
+                }
+
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `cv-jd-analysis-${Date.now()}.json`;
+                
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                this.showToast('Analysis exported as JSON', 'success');
+            }
+
+            exportComprehensiveReport() {
+                const now = new Date();
+                const timestamp = now.toISOString().replace(/:/g, '-').split('.')[0];
+                
+                // Get meaningful content only
+                const jdContent = this.lastJdAnalysis && !this.lastJdAnalysis.includes('not requested') 
+                    ? this.lastJdAnalysis : null;
+                const cvContent = this.lastCvMatching && !this.lastCvMatching.includes('not requested') 
+                    ? this.lastCvMatching : null;
+                
+                if (!jdContent && !cvContent) {
+                    this.showToast('No analysis results to export', 'warning');
+                    return;
+                }
+                
+                // Get selected analysis options as text
+                const options = this.getAnalysisOptions();
+                const selectedOptions = Object.entries(options)
+                    .filter(([key, value]) => value)
+                    .map(([key, value]) => {
+                        const optionNames = {
+                            'jd_requirements_analysis': 'JD Requirements Analysis',
+                            'cv_fit_assessment': 'CV Fit Assessment', 
+                            'gap_identification': 'Gap Identification',
+                            'cv_optimization': 'CV Optimization',
+                            'corporate_jargon': 'Corporate Jargon Analysis'
+                        };
+                        return `✓ ${optionNames[key] || key}`;
+                    });
+                
+                let content = `JOB DESCRIPTION & CV ANALYSIS REPORT
+Generated: ${now.toLocaleString()}
+====================================================
+
+INPUT SUMMARY:
+Job Description: ${this.jdInput.value ? 'Provided' : 'Not provided'}
+CV/Resume: ${this.cvInput.value ? 'Provided' : 'Not provided'}
+Additional Focus: ${this.additionalFocus.value || 'None'}
+
+ANALYSIS OPTIONS SELECTED:
+${selectedOptions.length > 0 ? selectedOptions.join('\n') : 'None'}
+
+====================================================`;
+
+                if (jdContent) {
+                    content += `
+
+JOB DESCRIPTION ANALYSIS:
+${this.formatTextForExport(jdContent)}
+
+====================================================`;
+                }
+
+                if (cvContent) {
+                    content += `
+
+CV MATCHING ANALYSIS:
+${this.formatTextForExport(cvContent)}
+
+====================================================`;
+                }
+
+                content += `
+Report generated on: ${now.toLocaleString()}`;
+
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `analysis-report-${timestamp}.txt`;
+                
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                this.showToast('Analysis report exported successfully', 'success');
+            }
+
+            exportComprehensiveReportDocx() {
+                const now = new Date();
+                const timestamp = now.toISOString().replace(/:/g, '-').split('.')[0];
+
+                const jdContent = this.lastJdAnalysis && !this.lastJdAnalysis.includes('not requested') 
+                    ? this.lastJdAnalysis : null;
+                const cvContent = this.lastCvMatching && !this.lastCvMatching.includes('not requested') 
+                    ? this.lastCvMatching : null;
+
+                if (!jdContent && !cvContent) {
+                    this.showToast('No analysis results to export', 'warning');
+                    return;
+                }
+
+                const options = this.getAnalysisOptions();
+                const optionNames = {
+                    'jd_requirements_analysis': 'JD Requirements Analysis',
+                    'cv_fit_assessment': 'CV Fit Assessment',
+                    'gap_identification': 'Gap Identification',
+                    'cv_optimization': 'CV Optimization',
+                    'corporate_jargon': 'Corporate Jargon Analysis'
+                };
+                const selectedOptions = Object.entries(options)
+                    .filter(([key, value]) => value)
+                    .map(([key]) => optionNames[key] || key);
+
+                const additionalFocusText = this.additionalFocus.value
+                    ? this.additionalFocus.value.replace(/\n/g, '<br>')
+                    : 'None';
+
+                const optionsHtml = selectedOptions.length > 0
+                    ? '<ul>' + selectedOptions.map(name => '<li>' + name + '</li>').join('') + '</ul>'
+                    : '<p>None</p>';
+
+                const htmlParts = [];
+
+                htmlParts.push(
+                    '<h1>JOB DESCRIPTION &amp; CV ANALYSIS REPORT</h1>' +
+                    '<p><strong>Generated:</strong> ' + now.toLocaleString() + '</p>' +
+                    '<h2>Input Summary</h2>' +
+                    '<ul>' +
+                        '<li><strong>Job Description:</strong> ' + (this.jdInput.value ? 'Provided' : 'Not provided') + '</li>' +
+                        '<li><strong>CV/Resume:</strong> ' + (this.cvInput.value ? 'Provided' : 'Not provided') + '</li>' +
+                        '<li><strong>Additional Focus:</strong> ' + additionalFocusText + '</li>' +
+                    '</ul>' +
+                    '<h2>Analysis Options Selected</h2>' +
+                    optionsHtml
+                );
+
+                if (jdContent) {
+                    htmlParts.push(
+                        '<h2>Job Description Analysis</h2>' +
+                        this.formatMarkdownToHTML(jdContent)
+                    );
+                }
+
+                if (cvContent) {
+                    htmlParts.push(
+                        '<h2>CV Matching Analysis</h2>' +
+                        this.formatMarkdownToHTML(cvContent)
+                    );
+                }
+
+                const bodyHtml = htmlParts.join('\n\n');
+                this.exportDocx(bodyHtml, 'analysis-report-' + timestamp + '.docx');
+            }
+
+            clearAllInputs() {
+                if (confirm('Are you sure you want to clear all inputs?')) {
+                    this.jdInput.value = '';
+                    this.cvInput.value = '';
+                    this.additionalFocus.value = '';
+                    
+                    this.updateCharCount(this.jdInput, this.jdCharCount);
+                    this.updateCharCount(this.cvInput, this.cvCharCount);
+                    
+                    this.hideResults();
+                    this.validateInputs();
+                    
+                    this.showToast('All inputs cleared', 'info');
+                }
+            }
+
+            showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                
+                this.toastContainer.appendChild(toast);
+                
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    toast.classList.add('fade-out');
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            toast.parentNode.removeChild(toast);
+                        }
+                    }, 300);
+                }, 5000);
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            loadSavedSettings() {
+                // Load saved model selection
+                const savedModel = localStorage.getItem('lmStudioSelectedModel');
+                if (savedModel) {
+                    // Create option if it doesn't exist (model might not be loaded yet)
+                    let option = this.lmModelSelect.querySelector(`option[value="${savedModel}"]`);
+                    if (!option) {
+                        option = document.createElement('option');
+                        option.value = savedModel;
+                        option.textContent = savedModel;
+                        this.lmModelSelect.appendChild(option);
+                    }
+                    this.lmModelSelect.value = savedModel;
+                    this.updateModelStatus(savedModel);
+                }
+            }
+
+            updateConnectionStatus(connected, modelCount = 0) {
+                const connectionStatus = document.getElementById('connection-status');
+                const statusDot = connectionStatus.querySelector('.status-dot');
+                const statusText = connectionStatus.querySelector('span');
+                
+                if (connected) {
+                    statusDot.className = 'fas fa-circle status-dot connected';
+                    statusText.textContent = `LM Studio: Connected (${modelCount} models)`;
+                } else {
+                    statusDot.className = 'fas fa-circle status-dot disconnected';
+                    statusText.textContent = 'LM Studio: Not Connected';
+                }
+            }
+
+            updateModelStatus(modelName) {
+                const modelStatus = document.getElementById('model-status');
+                const statusText = modelStatus.querySelector('span');
+                
+                if (modelName) {
+                    statusText.textContent = `Model: ${modelName}`;
+                } else {
+                    statusText.textContent = 'No Model Selected';
+                }
+            }
+
+
+            formatMarkdownToHTML(text) {
+                if (!text) return '';
+
+                // Escape HTML to prevent XSS but keep & as well
+                let escaped = text
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+
+                const lines = escaped.split(/\r?\n/);
+                const outLines = [];
+
+                const isTableHeaderLine = (line) => {
+                    const trimmed = line.trim();
+                    // | col1 | col2 |  (at least 2 pipes)
+                    return /^\|.*\|$/.test(trimmed) && trimmed.indexOf('|') !== trimmed.lastIndexOf('|');
+                };
+
+                const isTableSeparatorLine = (line) => {
+                    const trimmed = line.trim();
+                    // | --- | :---: | ---: |  style separators
+                    return /^(\|\s*:?-{3,}\s*:?\s*)+\|?$/.test(trimmed);
+                };
+
+                for (let i = 0; i < lines.length;) {
+                    const current = lines[i];
+                    const next = (i + 1 < lines.length) ? lines[i + 1] : '';
+
+                    if (isTableHeaderLine(current) && isTableSeparatorLine(next)) {
+                        // Parse header
+                        const headerCells = current
+                            .trim()
+                            .replace(/^\||\|$/g, '')
+                            .split('|')
+                            .map(c => c.trim());
+
+                        const rows = [];
+                        let j = i + 2;
+
+                        // Collect body rows until we hit a non-table line
+                        while (j < lines.length) {
+                            const rawRow = lines[j];
+                            const trimmedRow = rawRow.trim();
+                            if (!trimmedRow || !trimmedRow.startsWith('|')) break;
+
+                            const rowCells = trimmedRow
+                                .replace(/^\||\|$/g, '')
+                                .split('|')
+                                .map(c => c.trim());
+
+                            rows.push(rowCells);
+                            j++;
+                        }
+
+                        // Build HTML table
+                        let tableHTML = '<div class="markdown-table-wrapper"><table class="markdown-table">';
+
+                        tableHTML += '<thead><tr>';
+                        headerCells.forEach(cell => {
+                            tableHTML += `<th>${cell}</th>`;
+                        });
+                        tableHTML += '</tr></thead>';
+
+                        tableHTML += '<tbody>';
+                        rows.forEach(row => {
+                            tableHTML += '<tr>';
+                            for (let k = 0; k < headerCells.length; k++) {
+                                tableHTML += `<td>${row[k] || ''}</td>`;
+                            }
+                            tableHTML += '</tr>';
+                        });
+                        tableHTML += '</tbody></table></div>';
+
+                        outLines.push(tableHTML);
+                        i = j; // skip past the table
+                    } else {
+                        outLines.push(current);
+                        i++;
+                    }
+                }
+
+                let html = outLines.join('\n');
+
+                // Headings
+                html = html.replace(/^### (.+)$/gm, '<h3 class="analysis-h3">$1</h3>');
+                html = html.replace(/^## (.+)$/gm, '<h2 class="analysis-h2">$1</h2>');
+                html = html.replace(/^# (.+)$/gm, '<h1 class="analysis-h1">$1</h1>');
+
+                // Bold (non-greedy)
+                html = html.replace(/\*\*(.+?)\*\*/gs, '<strong>$1</strong>');
+
+                // Italic (avoid conflict with bold)
+                html = html.replace(/(?<!\*)\*([^*]+?)\*(?!\*)/g, '<em>$1</em>');
+
+                // Bullet lists
+                html = html.replace(/^([\s]*)[-*+] (.+)$/gm, (match, indent, content) => {
+                    const level = Math.floor(indent.length / 2);
+                    return `<li data-level="${level}">${content}</li>`;
+                });
+
+                // Group list items
+                html = html.replace(/(<li[^>]*>.*?<\/li>(\n|$))+/gs, (match) => {
+                    return '<ul class="analysis-list">' + match + '</ul>';
+                });
+
+                // Numbered lists
+                html = html.replace(/^([\s]*)\d+\. (.+)$/gm, (match, indent, content) => {
+                    const level = Math.floor(indent.length / 2);
+                    return `<li data-level="${level}">${content}</li>`;
+                });
+
+                // Code blocks
+                html = html.replace(/```([\s\S]*?)```/g, '<pre class="code-block"><code>$1</code></pre>');
+                html = html.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+
+                // Paragraphs (don’t wrap block elements / tables)
+                html = html
+                    .split('\n\n')
+                    .map(paragraph => {
+                        paragraph = paragraph.trim();
+                        if (!paragraph) return '';
+                        if (paragraph.includes('<h1') || paragraph.includes('<h2') ||
+                            paragraph.includes('<h3') || paragraph.includes('<ul') ||
+                            paragraph.includes('<ol') || paragraph.includes('<table') ||
+                            paragraph.includes('<pre')) {
+                            return paragraph;
+                        }
+                        return `<p class="analysis-paragraph">${paragraph.replace(/\n/g, '<br>')}</p>`;
+                    })
+                    .filter(p => p)
+                    .join('\n');
+
+                return html;
+            }
+
+            formatTextForExport(text) {
+                if (!text) return '';
+
+                const lines = text.split(/\r?\n/);
+                const outLines = [];
+
+                const isTableHeaderLine = (line) => {
+                    const trimmed = line.trim();
+                    return /^\|.*\|$/.test(trimmed) && trimmed.indexOf('|') !== trimmed.lastIndexOf('|');
+                };
+
+                const isTableSeparatorLine = (line) => {
+                    const trimmed = line.trim();
+                    return /^(\|\s*:?-{3,}\s*:?\s*)+\|?$/.test(trimmed);
+                };
+
+                for (let i = 0; i < lines.length;) {
+                    const current = lines[i];
+                    const next = (i + 1 < lines.length) ? lines[i + 1] : '';
+
+                    if (isTableHeaderLine(current) && isTableSeparatorLine(next)) {
+                        const headerCells = current
+                            .trim()
+                            .replace(/^\||\|$/g, '')
+                            .split('|')
+                            .map(c => c.trim());
+
+                        const rows = [];
+                        let j = i + 2;
+
+                        while (j < lines.length) {
+                            const rawRow = lines[j];
+                            const trimmedRow = rawRow.trim();
+                            if (!trimmedRow || !trimmedRow.startsWith('|')) break;
+
+                            const rowCells = trimmedRow
+                                .replace(/^\||\|$/g, '')
+                                .split('|')
+                                .map(c => c.trim());
+
+                            rows.push(rowCells);
+                            j++;
+                        }
+
+                        if (headerCells.length === 0) {
+                            outLines.push(current);
+                            i++;
+                            continue;
+                        }
+
+                        const colWidths = headerCells.map((header, idx) => {
+                            let maxRowWidth = 0;
+                            rows.forEach(row => {
+                                const len = (row[idx] || '').length;
+                                if (len > maxRowWidth) maxRowWidth = len;
+                            });
+                            return Math.max(header.length, maxRowWidth, 3);
+                        });
+
+                        const asciiLines = [];
+
+                        asciiLines.push(
+                            '┌' + colWidths.map(w => '─'.repeat(w + 2)).join('┬') + '┐'
+                        );
+
+                        asciiLines.push(
+                            '│' + headerCells
+                                .map((cell, iCol) => ` ${cell.padEnd(colWidths[iCol])} `)
+                                .join('│') + '│'
+                        );
+
+                        asciiLines.push(
+                            '├' + colWidths.map(w => '─'.repeat(w + 2)).join('┼') + '┤'
+                        );
+
+                        rows.forEach(row => {
+                            const cells = colWidths.map((width, idx) => (row[idx] || '').padEnd(width));
+                            asciiLines.push(
+                                '│' + cells.map(cell => ` ${cell} `).join('│') + '│'
+                            );
+                        });
+
+                        asciiLines.push(
+                            '└' + colWidths.map(w => '─'.repeat(w + 2)).join('┴') + '┘'
+                        );
+
+                        asciiLines.forEach(l => outLines.push(l));
+                        outLines.push('');
+
+                        i = j;
+                    } else {
+                        outLines.push(current);
+                        i++;
+                    }
+                }
+
+                let formatted = outLines.join('\n');
+
+                formatted = formatted.replace(/^### (.+)$/gm, '\n▶ $1\n' + '─'.repeat(50));
+                formatted = formatted.replace(/^## (.+)$/gm, '\n■ $1\n' + '═'.repeat(60));
+                formatted = formatted.replace(/^# (.+)$/gm, '\n█ $1\n' + '█'.repeat(70));
+
+                formatted = formatted.replace(/\*\*(.+?)\*\*/g, '【$1】');
+
+                formatted = formatted.replace(/^[\s]*[-*+] (.+)$/gm, '  • $1');
+
+                formatted = formatted.replace(/^[\s]*\d+\. (.+)$/gm, (match, content, offset, string) => {
+                    const linesBefore = string.substring(0, offset).split('\n');
+                    const currentLineIndex = linesBefore.length - 1;
+                    let counter = 1;
+                    for (let iLine = currentLineIndex - 1; iLine >= 0; iLine--) {
+                        if (linesBefore[iLine].match(/^[\s]*\d+\./)) {
+                            counter++;
+                        } else if (linesBefore[iLine].trim() === '') {
+                            continue;
+                        } else {
+                            break;
+                        }
+                    }
+                    return `  ${counter}. ${content}`;
+                });
+
+                return formatted;
+            }
+            clearAnalysisState() {
+                // Explicitly clear any cached analysis results
+                this.lastJdAnalysis = null;
+                this.lastCvMatching = null;
+                
+                // Clear any displayed results
+                if (this.jdAnalysisResults) this.jdAnalysisResults.innerHTML = '';
+                if (this.cvMatchingResults) this.cvMatchingResults.innerHTML = '';
+                
+                // Hide result sections
+                if (this.jdAnalysisSection) this.jdAnalysisSection.style.display = 'none';
+                if (this.cvMatchingSection) this.cvMatchingSection.style.display = 'none';
+                
+                console.log('🧹 Analysis state cleared for fresh request');
+            }
+
+            // Context Menu Methods
+            setupContextMenu() {
+                // Add context menu to text inputs
+                const textInputs = [this.jdInput, this.cvInput, this.additionalFocus];
+                
+                textInputs.forEach(input => {
+                    input.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        this.showContextMenu(e, input);
+                    });
+
+                    // Add keyboard shortcut support
+                    input.addEventListener('keydown', (e) => {
+                        if (e.ctrlKey || e.metaKey) {
+                            switch (e.key.toLowerCase()) {
+                                case 'a':
+                                    // Select all is already default, just show toast
+                                    setTimeout(() => this.showToast('All text selected', 'success'), 100);
+                                    break;
+                                case 'c':
+                                    // Copy is already default, just show toast if there's selection
+                                    if (input.selectionStart !== input.selectionEnd) {
+                                        setTimeout(() => this.showToast('Text copied to clipboard', 'success'), 100);
+                                    }
+                                    break;
+                                case 'v':
+                                    // Paste is already default, just show toast
+                                    setTimeout(() => this.showToast('Text pasted from clipboard', 'success'), 100);
+                                    break;
+                                case 'x':
+                                    // Cut is already default, just show toast if there's selection
+                                    if (input.selectionStart !== input.selectionEnd) {
+                                        setTimeout(() => this.showToast('Text cut to clipboard', 'success'), 100);
+                                    }
+                                    break;
+                            }
+                        }
+                    });
+                });
+
+                // Hide context menu on click outside
+                document.addEventListener('click', (e) => {
+                    if (!this.contextMenu.contains(e.target)) {
+                        this.hideContextMenu();
+                    }
+                });
+
+                // Context menu item clicks
+                this.contextMenu.addEventListener('click', (e) => {
+                    const menuItem = e.target.closest('.context-menu-item');
+                    if (menuItem && !menuItem.classList.contains('disabled')) {
+                        const action = menuItem.dataset.action;
+                        this.executeContextAction(action);
+                        this.hideContextMenu();
+                    }
+                });
+
+                // Hide context menu on escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.hideContextMenu();
+                    }
+                });
+            }
+
+            showContextMenu(event, targetElement) {
+                this.currentContextTarget = targetElement;
+                const menu = this.contextMenu;
+                
+                // Update menu item states based on current selection and clipboard
+                this.updateContextMenuState();
+                
+                // Position the menu
+                const x = event.clientX;
+                const y = event.clientY;
+                
+                // Show menu temporarily to calculate dimensions
+                menu.style.display = 'block';
+                const menuRect = menu.getBoundingClientRect();
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                
+                // Adjust position if menu would go off screen
+                let menuX = x;
+                let menuY = y;
+                
+                if (x + menuRect.width > viewportWidth) {
+                    menuX = x - menuRect.width;
+                }
+                
+                if (y + menuRect.height > viewportHeight) {
+                    menuY = y - menuRect.height;
+                }
+                
+                menu.style.left = `${menuX}px`;
+                menu.style.top = `${menuY}px`;
+            }
+
+            hideContextMenu() {
+                this.contextMenu.style.display = 'none';
+                this.currentContextTarget = null;
+            }
+
+            updateContextMenuState() {
+                const target = this.currentContextTarget;
+                if (!target) return;
+
+                const hasSelection = target.selectionStart !== target.selectionEnd;
+                const hasText = target.value.length > 0;
+                
+                // Update menu items based on current state
+                const menuItems = this.contextMenu.querySelectorAll('.context-menu-item');
+                
+                menuItems.forEach(item => {
+                    const action = item.dataset.action;
+                    item.classList.remove('disabled');
+                    
+                    switch (action) {
+                        case 'cut':
+                        case 'copy':
+                            if (!hasSelection) {
+                                item.classList.add('disabled');
+                            }
+                            break;
+                        case 'clear':
+                            if (!hasText) {
+                                item.classList.add('disabled');
+                            }
+                            break;
+                        case 'undo':
+                        case 'redo':
+                            // These would require implementing a history system
+                            // For now, disable them
+                            item.classList.add('disabled');
+                            break;
+                    }
+                });
+            }
+
+            async executeContextAction(action) {
+                const target = this.currentContextTarget;
+                if (!target) return;
+
+                try {
+                    switch (action) {
+                        case 'cut':
+                            if (target.selectionStart !== target.selectionEnd) {
+                                const selectedText = target.value.substring(target.selectionStart, target.selectionEnd);
+                                await navigator.clipboard.writeText(selectedText);
+                                const start = target.selectionStart;
+                                const end = target.selectionEnd;
+                                target.value = target.value.substring(0, start) + target.value.substring(end);
+                                target.setSelectionRange(start, start);
+                                target.dispatchEvent(new Event('input', { bubbles: true }));
+                                this.showToast('Text cut to clipboard', 'success');
+                            }
+                            break;
+
+                        case 'copy':
+                            if (target.selectionStart !== target.selectionEnd) {
+                                const selectedText = target.value.substring(target.selectionStart, target.selectionEnd);
+                                await navigator.clipboard.writeText(selectedText);
+                                this.showToast('Text copied to clipboard', 'success');
+                            }
+                            break;
+
+                        case 'paste':
+                            try {
+                                const clipboardText = await navigator.clipboard.readText();
+                                const start = target.selectionStart;
+                                const end = target.selectionEnd;
+                                target.value = target.value.substring(0, start) + clipboardText + target.value.substring(end);
+                                target.setSelectionRange(start + clipboardText.length, start + clipboardText.length);
+                                target.dispatchEvent(new Event('input', { bubbles: true }));
+                                this.showToast('Text pasted from clipboard', 'success');
+                            } catch (error) {
+                                this.showToast('Unable to access clipboard', 'warning');
+                            }
+                            break;
+
+                        case 'select-all':
+                            target.select();
+                            this.showToast('All text selected', 'success');
+                            break;
+
+                        case 'clear':
+                            if (confirm('Are you sure you want to clear this field?')) {
+                                target.value = '';
+                                target.dispatchEvent(new Event('input', { bubbles: true }));
+                                this.showToast('Field cleared', 'success');
+                            }
+                            break;
+
+                        case 'undo':
+                        case 'redo':
+                            // These would require implementing a history system
+                            this.showToast('Undo/Redo not implemented yet', 'warning');
+                            break;
+                    }
+                } catch (error) {
+                    console.error('Context menu action error:', error);
+                    this.showToast('Action failed', 'error');
+                }
+            }
+
+            // LM Studio specific methods
+            async refreshLMStudioModels() {
+                const baseUrl = this.lmBaseUrl.value.trim();
+                const refreshBtn = this.refreshModelsBtn;
+                const modelStatus = this.lmModelStatus;
+                
+                // Show loading state
+                refreshBtn.textContent = '⏳';
+                refreshBtn.disabled = true;
+                modelStatus.textContent = 'Fetching available models...';
+                modelStatus.style.color = '#d97706';
+                
+                try {
+                    const modelsEndpoint = `${baseUrl}/v1/models`;
+                    const response = await fetch(modelsEndpoint);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch models: ${response.status} ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    const models = data.data || [];
+                    
+                    // Clear existing options
+                    this.lmModelSelect.innerHTML = '<option value="">Select a model...</option>';
+                    
+                    if (models.length === 0) {
+                        this.lmModelSelect.innerHTML += '<option value="" disabled>No models found</option>';
+                        modelStatus.textContent = 'No models found in LM Studio. Please load models first.';
+                        modelStatus.style.color = '#dc2626';
+                    } else {
+                        // Add model options
+                        models.forEach(model => {
+                            const option = document.createElement('option');
+                            option.value = model.id;
+                            option.textContent = model.id;
+                            this.lmModelSelect.appendChild(option);
+                        });
+                        
+                        // Restore previously selected model if available
+                        const savedModel = localStorage.getItem('lmStudioSelectedModel');
+                        if (savedModel && models.some(m => m.id === savedModel)) {
+                            this.lmModelSelect.value = savedModel;
+                        } else if (models.length > 0) {
+                            // Auto-select first model if no saved selection
+                            this.lmModelSelect.value = models[0].id;
+                            localStorage.setItem('lmStudioSelectedModel', models[0].id);
+                        }
+                        
+                        modelStatus.textContent = `Found ${models.length} model${models.length !== 1 ? 's' : ''} in LM Studio`;
+                        modelStatus.style.color = '#059669';
+                    }
+                    
+                    this.showToast(`Successfully loaded ${models.length} models from LM Studio`, 'success');
+                    this.updateConnectionStatus(true, models.length);
+                    
+                } catch (error) {
+                    this.lmModelSelect.innerHTML = '<option value="">Select a model...</option><option value="" disabled>Failed to fetch models</option>';
+                    modelStatus.textContent = `Failed to fetch models: ${error.message}`;
+                    modelStatus.style.color = '#dc2626';
+                    this.showToast(`Failed to fetch models: ${error.message}`, 'error');
+                } finally {
+                    refreshBtn.textContent = '🔄';
+                    refreshBtn.disabled = false;
+                }
+            }
+
+            async testLMStudioConnection() {
+                const baseUrl = this.lmBaseUrl.value.trim();
+                const testBtn = this.testConnectionBtn;
+                const statusDiv = this.lmStatus;
+                
+                // Show loading state
+                const originalText = testBtn.innerHTML;
+                testBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+                testBtn.disabled = true;
+                statusDiv.textContent = 'Testing connection...';
+                statusDiv.style.background = '#fef3c7';
+                statusDiv.style.color = '#d97706';
+                
+                try {
+                    // Test models endpoint
+                    const modelsResponse = await fetch(`${baseUrl}/v1/models`, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' },
+                        mode: 'cors',
+                        credentials: 'omit'
+                    });
+                    
+                    if (!modelsResponse.ok) {
+                        throw new Error(`Models endpoint failed: ${modelsResponse.status} ${modelsResponse.statusText}`);
+                    }
+                    
+                    const modelsData = await modelsResponse.json();
+                    const modelCount = modelsData.data ? modelsData.data.length : 0;
+                    
+                    statusDiv.textContent = `✅ Connected (${modelCount} models)`;
+                    statusDiv.style.background = '#d1fae5';
+                    statusDiv.style.color = '#059669';
+                    
+                    this.showToast(`LM Studio connection successful! Found ${modelCount} models.`, 'success');
+                    this.updateConnectionStatus(true, modelCount);
+                    
+                } catch (error) {
+                    statusDiv.textContent = `❌ Connection failed`;
+                    statusDiv.style.background = '#fee2e2';
+                    statusDiv.style.color = '#dc2626';
+                    
+                    let errorMsg = `LM Studio connection failed: ${error.message}\n\n`;
+                    errorMsg += `Troubleshooting:\n`;
+                    errorMsg += `• Make sure LM Studio is running\n`;
+                    errorMsg += `• Check the base URL: ${baseUrl}\n`;
+                    errorMsg += `• In LM Studio: Start the local server and load a model`;
+                    
+                    this.showToast('LM Studio connection failed. Check console for details.', 'error');
+                    this.updateConnectionStatus(false);
+                    alert(errorMsg);
+                } finally {
+                    testBtn.innerHTML = originalText;
+                    testBtn.disabled = false;
+                }
+            }
+
+            initializeAnalysisTemplates() {
+                return {
+                    jobDescription: {
+                        roleBreakdown: "Analyze the core responsibilities and daily tasks",
+                        requirements: "Break down technical and soft skill requirements",
+                        company: "Assess company culture and values from job description",
+                        market: "Evaluate market demand and salary expectations"
+                    },
+                    cvMatching: {
+                        alignment: "Compare experience with job requirements",
+                        gaps: "Identify skill and experience gaps",
+                        optimization: "Recommend CV improvements",
+                        strategy: "Suggest application and interview strategies"
+                    }
+                };
+            }
+        }
+
+        // Initialize the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.app = new CVJobMatcherStandalone();
+        });
+
+        // Global error handler
+        window.addEventListener('error', (e) => {
+            console.error('Global error:', e.error);
+            if (window.app) {
+                window.app.showToast('An unexpected error occurred', 'error');
+            }
+        });
+
+        // Handle unhandled promise rejections
+        window.addEventListener('unhandledrejection', (e) => {
+            console.error('Unhandled promise rejection:', e.reason);
+            if (window.app) {
+                window.app.showToast('An unexpected error occurred', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

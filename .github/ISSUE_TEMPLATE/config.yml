@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 General Discussion
+    url: https://github.com/yourusername/local_jd_cv_evaluator/discussions
+    about: For general questions, ideas, and community discussions
+  - name: 📖 Documentation
+    url: https://github.com/yourusername/local_jd_cv_evaluator#readme
+    about: Check the README for setup instructions and usage guide
+  - name: 🤖 LM Studio Support
+    url: https://lmstudio.ai/docs
+    about: Official LM Studio documentation and support

@@ -1,0 +1,49 @@
+{
+  "tagline": "Privacy-first, standalone AI-powered CV and Job Description analysis tool",
+  "docs": [
+    {
+      "Getting Started": [
+        {
+          "Installation": "README.md#setup-instructions"
+        },
+        {
+          "Usage Guide": "README.md#usage-guide"  
+        },
+        {
+          "Troubleshooting": "README.md#troubleshooting"
+        }
+      ]
+    },
+    {
+      "Features": [
+        {
+          "Analysis Types": "README.md#analysis-types"
+        },
+        {
+          "Privacy & Security": "README.md#privacy--security"
+        },
+        {
+          "Export Options": "README.md#usage-guide"
+        }
+      ]
+    },
+    {
+      "Development": [
+        {
+          "Contributing": "CONTRIBUTING.md"
+        },
+        {
+          "Security Policy": "SECURITY.md"
+        },
+        {
+          "Changelog": "CHANGELOG.md"
+        }
+      ]
+    }
+  ],
+  "related": [
+    "lmstudio-ai/lmstudio",
+    "ai-tools/cv-analyzer",
+    "privacy-tools/local-ai"
+  ]
+}

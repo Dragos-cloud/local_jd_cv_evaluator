@@ -1,0 +1,151 @@
+name: ❓ Question/Support
+description: Ask a question or get support using the CV-JD Evaluator
+title: "[QUESTION]: "
+labels: ["question", "help wanted"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for using the CV-JD Evaluator! Please fill out this form to get help with your question.
+        
+        **Note**: For general discussions, consider using [GitHub Discussions](../../discussions) instead.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-flight Checklist
+      description: Please confirm you have done the following
+      options:
+        - label: I have read the README.md and setup instructions
+          required: true
+        - label: I have searched existing issues and discussions for similar questions
+          required: true
+        - label: This is not a bug report (use the bug report template instead)
+          required: true
+
+  - type: dropdown
+    id: question-category
+    attributes:
+      label: 🏷️ Question Category
+      description: What type of question or support do you need?
+      options:
+        - Setup/Installation Help
+        - LM Studio Configuration
+        - Model Selection/Recommendations
+        - Usage Instructions
+        - Feature Understanding
+        - Troubleshooting (not a bug)
+        - Best Practices
+        - Integration Questions
+        - Performance Optimization
+        - Privacy/Security Questions
+        - Other (please specify)
+    validations:
+      required: true
+
+  - type: textarea
+    id: question-summary
+    attributes:
+      label: ❓ Your Question
+      description: What would you like to know or what help do you need?
+      placeholder: Clearly state your question or describe what you need help with
+    validations:
+      required: true
+
+  - type: textarea
+    id: context-details
+    attributes:
+      label: 🔍 Context & Details
+      description: Provide context to help us understand your situation
+      placeholder: |
+        Please provide relevant details such as:
+        - What you're trying to accomplish
+        - What you've already tried
+        - Your current setup or configuration
+        - Any specific constraints or requirements
+    validations:
+      required: true
+
+  - type: dropdown
+    id: experience-level
+    attributes:
+      label: 📊 Experience Level
+      description: What's your experience level with this type of tool?
+      options:
+        - Complete beginner
+        - Some experience with AI tools
+        - Experienced with AI/LM Studio
+        - Advanced user/Developer
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-setup
+    attributes:
+      label: 🖥️ Current Setup (if relevant)
+      description: Describe your current setup if it's relevant to your question
+      placeholder: |
+        - Operating System
+        - Browser version
+        - LM Studio version
+        - Model(s) you're using
+        - Any specific configuration
+
+  - type: textarea
+    id: what-tried
+    attributes:
+      label: 🔄 What You've Tried
+      description: What have you already attempted?
+      placeholder: |
+        List the steps or solutions you've already tried:
+        - Documentation sections you've read
+        - Configuration changes you've made
+        - Different approaches you've tested
+        - Error messages you've encountered
+
+  - type: textarea
+    id: expected-outcome
+    attributes:
+      label: 🎯 Expected Outcome
+      description: What outcome are you hoping to achieve?
+      placeholder: Describe what you want to accomplish or what result you're looking for
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: ⏰ Urgency Level
+      description: How urgent is this question for you?
+      options:
+        - Not urgent - just curious
+        - Low - can wait a few days
+        - Medium - need answer within a day
+        - High - blocking my work
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: 📝 Additional Information
+      description: Any other information that might be helpful
+      placeholder: |
+        - Screenshots (if helpful)
+        - Error messages (if any)
+        - Links to relevant resources
+        - Other context or constraints
+
+  - type: checkboxes
+    id: help-type
+    attributes:
+      label: 🤝 Type of Help Needed
+      description: What kind of help would be most useful? (check all that apply)
+      options:
+        - label: Step-by-step guidance
+        - label: Explanation of concepts
+        - label: Troubleshooting assistance
+        - label: Recommendations/best practices
+        - label: Examples or samples
+        - label: Documentation clarification
+        - label: Alternative approaches
+        - label: Other (specified above)

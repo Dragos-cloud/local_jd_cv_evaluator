@@ -1,0 +1,159 @@
+name: 🐛 Bug Report
+description: Report a bug or issue with the CV-JD Evaluator
+title: "[BUG]: "
+labels: ["bug", "triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the form below to help us understand and fix the issue.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-flight Checklist
+      description: Please confirm you have done the following before submitting this bug report
+      options:
+        - label: I have searched existing issues to make sure this bug hasn't been reported already
+          required: true
+        - label: I have tested with the latest version of the application
+          required: true
+        - label: I have verified that LM Studio is properly configured and running
+          required: true
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: 🔍 Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: Describe what happened and what you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: 🔄 Steps to Reproduce
+      description: Please provide step-by-step instructions to reproduce the bug
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Enter text '...'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: ✅ Expected Behavior
+      description: What did you expect to happen?
+      placeholder: Describe the expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: ❌ Actual Behavior
+      description: What actually happened?
+      placeholder: Describe what actually happened instead
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: 🌐 Browser
+      description: Which browser are you using?
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Other (please specify in additional context)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: operating-system
+    attributes:
+      label: 💻 Operating System
+      description: Which operating system are you using?
+      options:
+        - Windows 10
+        - Windows 11
+        - macOS
+        - Linux (Ubuntu)
+        - Linux (Other)
+        - Other (please specify in additional context)
+    validations:
+      required: true
+
+  - type: input
+    id: lm-studio-version
+    attributes:
+      label: 🤖 LM Studio Version
+      description: What version of LM Studio are you using?
+      placeholder: "e.g., 0.2.15"
+    validations:
+      required: true
+
+  - type: input
+    id: model-used
+    attributes:
+      label: 🧠 AI Model Used
+      description: Which AI model were you using when the bug occurred?
+      placeholder: "e.g., llama-2-7b-chat.Q4_K_M.gguf"
+    validations:
+      required: true
+
+  - type: textarea
+    id: console-errors
+    attributes:
+      label: 🚨 Console Errors
+      description: If there were any console errors, please paste them here
+      placeholder: |
+        Open browser developer tools (F12), go to Console tab, and copy any error messages.
+        If no errors, write "No console errors"
+      render: shell
+
+  - type: textarea
+    id: sample-input
+    attributes:
+      label: 📄 Sample Input (Optional)
+      description: If relevant, provide sample job description or CV text that triggered the bug
+      placeholder: |
+        Paste sample text here (redact any personal information)
+        Or describe the type/length of input that caused the issue
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: 📸 Screenshots
+      description: If applicable, add screenshots to help explain the problem
+      placeholder: Drag and drop screenshots here, or describe what you see
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📝 Additional Context
+      description: Add any other context about the problem here
+      placeholder: |
+        - Did this work before?
+        - Does it happen consistently?
+        - Any workarounds you found?
+        - Other relevant information
+
+  - type: checkboxes
+    id: impact
+    attributes:
+      label: 📊 Impact Assessment
+      description: How does this bug affect your usage?
+      options:
+        - label: Prevents me from using the application entirely
+        - label: Prevents specific features from working
+        - label: Causes incorrect results but application still works
+        - label: Minor UI/UX issue that doesn't affect functionality
+        - label: Other (explained in additional context)

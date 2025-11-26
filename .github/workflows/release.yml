@@ -1,0 +1,142 @@
+name: 🚀 Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: 📦 Create Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: 🏷️ Get tag info
+      id: tag_info
+      run: |
+        TAG_NAME=${GITHUB_REF#refs/tags/}
+        echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+        echo "release_name=Local CV-JD Evaluator $TAG_NAME" >> $GITHUB_OUTPUT
+        
+    - name: 📝 Generate release notes
+      id: release_notes
+      run: |
+        # Get the previous tag
+        PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+        
+        if [ -n "$PREVIOUS_TAG" ]; then
+          echo "## Changes since $PREVIOUS_TAG" > release_notes.md
+          echo "" >> release_notes.md
+          git log --pretty=format:"- %s (%h)" $PREVIOUS_TAG..HEAD >> release_notes.md
+        else
+          echo "## Initial Release" > release_notes.md
+          echo "" >> release_notes.md
+          echo "First release of Local CV-JD Evaluator - Privacy-first, standalone AI-powered CV and Job Description analysis tool." >> release_notes.md
+        fi
+        
+        echo "" >> release_notes.md
+        echo "## 📋 What's Included" >> release_notes.md
+        echo "" >> release_notes.md
+        echo "- \`standalone_cv_jd_evaluator.html\` - The complete application in a single HTML file" >> release_notes.md
+        echo "- Full documentation and setup instructions" >> release_notes.md
+        echo "" >> release_notes.md
+        echo "## 🚀 Quick Start" >> release_notes.md
+        echo "" >> release_notes.md
+        echo "1. Download \`standalone_cv_jd_evaluator.html\`" >> release_notes.md
+        echo "2. Install and setup [LM Studio](https://lmstudio.ai/)" >> release_notes.md
+        echo "3. Load an AI model in LM Studio and start the local server" >> release_notes.md
+        echo "4. Open the HTML file in your browser" >> release_notes.md
+        echo "5. Test connection and start analyzing!" >> release_notes.md
+        echo "" >> release_notes.md
+        echo "## 🔒 Privacy Features" >> release_notes.md
+        echo "" >> release_notes.md
+        echo "- ✅ 100% local processing - no data leaves your computer" >> release_notes.md
+        echo "- ✅ No API keys or cloud services required" >> release_notes.md
+        echo "- ✅ Works completely offline" >> release_notes.md
+        echo "- ✅ Single file - no installation needed" >> release_notes.md
+        
+    - name: 📦 Prepare release assets
+      run: |
+        # Create a release directory
+        mkdir -p release-assets
+        
+        # Copy main file
+        cp standalone_cv_jd_evaluator.html release-assets/
+        
+        # Create a ZIP with documentation
+        zip -r release-assets/local-cv-jd-evaluator-${{ steps.tag_info.outputs.tag_name }}.zip \
+          standalone_cv_jd_evaluator.html \
+          README.md \
+          LICENSE \
+          CONTRIBUTING.md \
+          CHANGELOG.md
+        
+        # Create SHA256 checksums
+        cd release-assets
+        sha256sum * > checksums.txt
+        
+    - name: 🚀 Create GitHub Release
+      uses: actions/create-release@v1
+      id: create_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.tag_info.outputs.tag_name }}
+        release_name: ${{ steps.tag_info.outputs.release_name }}
+        body_path: release_notes.md
+        draft: false
+        prerelease: false
+        
+    - name: 📎 Upload HTML file
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release-assets/standalone_cv_jd_evaluator.html
+        asset_name: standalone_cv_jd_evaluator.html
+        asset_content_type: text/html
+        
+    - name: 📎 Upload ZIP package
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release-assets/local-cv-jd-evaluator-${{ steps.tag_info.outputs.tag_name }}.zip
+        asset_name: local-cv-jd-evaluator-${{ steps.tag_info.outputs.tag_name }}.zip
+        asset_content_type: application/zip
+        
+    - name: 📎 Upload checksums
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release-assets/checksums.txt
+        asset_name: checksums.txt
+        asset_content_type: text/plain
+
+  notify-release:
+    name: 📢 Notify Release
+    runs-on: ubuntu-latest
+    needs: create-release
+    if: success()
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📢 Create release announcement
+      run: |
+        echo "🚀 New release created: ${{ github.ref_name }}"
+        echo "📝 Release notes and downloads available at:"
+        echo "https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"

@@ -1,0 +1,56 @@
+{
+  "name": "local-cv-jd-evaluator",
+  "version": "1.0.0",
+  "description": "Privacy-first, standalone AI-powered CV and Job Description analysis tool that runs entirely offline using LM Studio",
+  "main": "standalone_cv_jd_evaluator.html",
+  "scripts": {
+    "test": "echo \"No test suite configured. Manual testing required.\"",
+    "lint": "echo \"Linting configured in GitHub Actions\"",
+    "serve": "npx http-server -p 8000 -o",
+    "validate": "echo \"Validation configured in GitHub Actions\""
+  },
+  "keywords": [
+    "cv-analysis",
+    "job-description",
+    "ai-powered",
+    "privacy-first",
+    "offline",
+    "standalone",
+    "lm-studio",
+    "career-tools",
+    "resume-analyzer",
+    "job-matching"
+  ],
+  "author": "Local CV-JD Evaluator Contributors",
+  "license": "MIT",
+  "homepage": "https://github.com/yourusername/local_jd_cv_evaluator#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/local_jd_cv_evaluator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/local_jd_cv_evaluator/issues"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/yourusername"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "htmlhint": "^1.1.4",
+    "stylelint": "^15.10.3",
+    "eslint": "^8.50.0",
+    "http-server": "^14.1.1"
+  },
+  "files": [
+    "standalone_cv_jd_evaluator.html",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  }
+}

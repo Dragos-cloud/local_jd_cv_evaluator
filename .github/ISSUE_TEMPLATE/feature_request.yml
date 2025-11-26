@@ -1,0 +1,184 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for the CV-JD Evaluator
+title: "[FEATURE]: "
+labels: ["enhancement", "feature-request"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to suggest a feature! Please fill out the form below to help us understand your request.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-flight Checklist
+      description: Please confirm you have done the following before submitting this feature request
+      options:
+        - label: I have searched existing issues to make sure this feature hasn't been requested already
+          required: true
+        - label: This feature aligns with the project's privacy-first and offline-capable goals
+          required: true
+        - label: I have considered if this could be implemented without external dependencies
+          required: true
+
+  - type: textarea
+    id: feature-summary
+    attributes:
+      label: 🚀 Feature Summary
+      description: A clear and concise description of the feature you'd like to see
+      placeholder: Briefly describe the feature you're requesting
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: 🎯 Problem Statement
+      description: What problem does this feature solve? What need does it address?
+      placeholder: |
+        Describe the problem or need this feature would address:
+        - What's currently difficult or impossible to do?
+        - What use case is not covered?
+        - What pain point would this solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: 💡 Proposed Solution
+      description: Describe your proposed solution in detail
+      placeholder: |
+        Describe how you envision this feature working:
+        - What would the user interface look like?
+        - How would users interact with this feature?
+        - What would be the expected behavior?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: feature-category
+    attributes:
+      label: 🏷️ Feature Category
+      description: Which area of the application does this feature relate to?
+      options:
+        - Analysis Features (new analysis types, improved prompts)
+        - User Interface (UI improvements, new layouts)
+        - Export/Import (new formats, better formatting)
+        - LM Studio Integration (model management, connection features)
+        - Performance (speed, memory usage, optimization)
+        - Accessibility (screen readers, keyboard navigation)
+        - Documentation (help text, tutorials, examples)
+        - Developer Experience (code organization, maintainability)
+        - Other (please specify in additional details)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 📊 Priority Level
+      description: How important is this feature to you?
+      options:
+        - Critical - Prevents effective use of the application
+        - High - Significantly improves user experience
+        - Medium - Nice to have improvement
+        - Low - Minor enhancement
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: 🎭 Use Cases
+      description: Describe specific scenarios where this feature would be useful
+      placeholder: |
+        Example scenarios:
+        1. As a job seeker, I want to... so that I can...
+        2. As a recruiter, I need to... because...
+        3. When analyzing multiple CVs, it would help if...
+    validations:
+      required: true
+
+  - type: textarea
+    id: mockups-examples
+    attributes:
+      label: 🎨 Mockups/Examples
+      description: If you have mockups, sketches, or examples from other tools, please share them
+      placeholder: |
+        - Attach images, sketches, or mockups
+        - Link to similar features in other tools
+        - Describe visual elements or interactions
+
+  - type: textarea
+    id: alternative-solutions
+    attributes:
+      label: 🔄 Alternative Solutions
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: |
+        - Other ways to solve the same problem
+        - Existing workarounds you currently use
+        - Similar features that might work differently
+
+  - type: checkboxes
+    id: technical-considerations
+    attributes:
+      label: 🔧 Technical Considerations
+      description: Please consider the technical aspects (check all that apply)
+      options:
+        - label: This feature can work entirely offline/locally
+        - label: This feature doesn't require external APIs or services
+        - label: This feature maintains user privacy (no data transmission)
+        - label: This feature is compatible with the single-file architecture
+        - label: This feature works with various AI models/sizes
+        - label: I'm not sure about the technical requirements
+
+  - type: textarea
+    id: implementation-ideas
+    attributes:
+      label: 💻 Implementation Ideas (Optional)
+      description: If you have ideas about how this could be implemented, share them here
+      placeholder: |
+        - Technical approaches you've considered
+        - Libraries or tools that might help
+        - Code snippets or pseudo-code
+        - Implementation challenges to consider
+
+  - type: dropdown
+    id: contribution-interest
+    attributes:
+      label: 🤝 Contribution Interest
+      description: Would you be interested in contributing to implement this feature?
+      options:
+        - Yes, I'd like to implement this myself
+        - Yes, I'd like to help with implementation
+        - Maybe, depending on complexity
+        - No, but I can help with testing
+        - No, I'm just requesting the feature
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📝 Additional Context
+      description: Add any other context, research, or information about the feature request
+      placeholder: |
+        - Links to relevant resources or research
+        - Industry standards or best practices
+        - Feedback from other users
+        - Any other relevant information
+
+  - type: checkboxes
+    id: impact-assessment
+    attributes:
+      label: 🌟 Expected Benefits
+      description: What benefits do you expect from this feature? (check all that apply)
+      options:
+        - label: Improved analysis accuracy or quality
+        - label: Better user experience or usability
+        - label: Time savings for users
+        - label: Support for new use cases or user types
+        - label: Better integration with existing workflows
+        - label: Enhanced accessibility
+        - label: Performance improvements
+        - label: Other (explained in additional context)

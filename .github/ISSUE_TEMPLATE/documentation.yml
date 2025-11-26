@@ -1,0 +1,184 @@
+name: 📚 Documentation Issue
+description: Report issues with documentation or request documentation improvements
+title: "[DOCS]: "
+labels: ["documentation", "triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve our documentation! Please fill out the form below to describe the documentation issue or improvement.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-flight Checklist
+      description: Please confirm you have done the following
+      options:
+        - label: I have searched existing issues to make sure this hasn't been reported already
+          required: true
+        - label: I have checked the current documentation thoroughly
+          required: true
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: 📖 Documentation Type
+      description: Which type of documentation needs attention?
+      options:
+        - README.md
+        - CONTRIBUTING.md
+        - Setup/Installation Instructions
+        - Usage Guide
+        - Troubleshooting Guide
+        - Code Comments/JSDoc
+        - Issue Templates
+        - Other (please specify)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: 🔍 Issue Type
+      description: What kind of documentation issue is this?
+      options:
+        - Missing Information
+        - Incorrect/Outdated Information
+        - Unclear Instructions
+        - Typo/Grammar Error
+        - Broken Links
+        - Poor Organization/Structure
+        - Missing Examples
+        - Accessibility Issues
+        - Translation/Localization
+        - Other (please specify)
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-documentation
+    attributes:
+      label: 📄 Current Documentation
+      description: What does the current documentation say? (copy/paste the relevant section)
+      placeholder: Paste the current documentation text that has issues
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: ❌ What's Wrong
+      description: Clearly describe what's wrong or missing in the current documentation
+      placeholder: |
+        Explain the issue:
+        - What's confusing or unclear?
+        - What information is missing?
+        - What's incorrect or outdated?
+        - How does this impact users?
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested-improvement
+    attributes:
+      label: ✅ Suggested Improvement
+      description: How should the documentation be improved?
+      placeholder: |
+        Provide your suggested changes:
+        - Corrected text or new content
+        - Better organization or structure
+        - Additional examples or clarifications
+        - Links to helpful resources
+    validations:
+      required: true
+
+  - type: dropdown
+    id: user-impact
+    attributes:
+      label: 👥 User Impact
+      description: Who would benefit from this documentation improvement?
+      options:
+        - New users/First-time setup
+        - Experienced users
+        - Contributors/Developers
+        - Troubleshooting users
+        - All users
+        - Specific user group (please specify)
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: 🎭 User Story
+      description: Describe the user experience that would be improved
+      placeholder: |
+        As a [type of user], when I [what they're trying to do], 
+        I need [what information/guidance], so that [desired outcome].
+        
+        Example: "As a new user, when I'm setting up LM Studio integration, 
+        I need clearer error messages and troubleshooting steps, 
+        so that I can successfully connect without getting stuck."
+
+  - type: textarea
+    id: context-location
+    attributes:
+      label: 📍 Location/Context
+      description: Where exactly is this documentation issue located?
+      placeholder: |
+        - File name and section
+        - Line numbers (if applicable)
+        - URL or path to the documentation
+        - Step number in instructions
+
+  - type: checkboxes
+    id: improvement-type
+    attributes:
+      label: 🛠️ Type of Improvement Needed
+      description: What kind of improvements would help? (check all that apply)
+      options:
+        - label: Add missing information
+        - label: Clarify existing content
+        - label: Add examples or screenshots
+        - label: Fix errors or typos
+        - label: Improve organization
+        - label: Add troubleshooting steps
+        - label: Update outdated information
+        - label: Add cross-references/links
+        - label: Improve accessibility
+        - label: Other (specified below)
+
+  - type: textarea
+    id: examples-resources
+    attributes:
+      label: 📚 Examples/Resources
+      description: Do you have examples, screenshots, or resources that would help?
+      placeholder: |
+        - Screenshots showing the issue
+        - Examples of good documentation from other projects
+        - Links to relevant resources
+        - Sample content or templates
+
+  - type: dropdown
+    id: contribution-interest
+    attributes:
+      label: ✍️ Contribution Interest
+      description: Would you like to help improve this documentation?
+      options:
+        - Yes, I'd like to write the improved content
+        - Yes, I can help review proposed changes
+        - Maybe, depending on the scope
+        - No, but I can provide feedback
+        - No, I'm just reporting the issue
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📝 Additional Context
+      description: Any other context or information about this documentation issue
+      placeholder: |
+        - How you discovered this issue
+        - Other users who might have similar problems
+        - Related documentation that might need updating
+        - Priority level and reasoning

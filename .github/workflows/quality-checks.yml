@@ -1,0 +1,237 @@
+name: 🔍 Code Quality Checks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-validate:
+    name: 🧹 Lint & Validate
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: 📦 Install dependencies
+      run: |
+        npm install -g htmlhint stylelint eslint
+        
+    - name: 🔍 Lint HTML
+      run: |
+        htmlhint --config .htmlhintrc standalone_cv_jd_evaluator.html || echo "HTML linting completed with warnings"
+        
+    - name: 🎨 Lint CSS (extract from HTML)
+      run: |
+        # Extract CSS from HTML for linting
+        sed -n '/<style>/,/<\/style>/p' standalone_cv_jd_evaluator.html | sed '1d;$d' > temp-styles.css
+        if [ -s temp-styles.css ]; then
+          stylelint temp-styles.css --config-basedir . || echo "CSS linting completed with warnings"
+        fi
+        rm -f temp-styles.css
+        
+    - name: 🔍 Lint JavaScript (extract from HTML)
+      run: |
+        # Extract JavaScript from HTML for linting
+        sed -n '/<script>/,/<\/script>/p' standalone_cv_jd_evaluator.html | sed '1d;$d' > temp-script.js
+        if [ -s temp-script.js ]; then
+          eslint temp-script.js --no-eslintrc --env browser,es6 --parserOptions ecmaVersion:2020 || echo "JavaScript linting completed with warnings"
+        fi
+        rm -f temp-script.js
+
+  security-scan:
+    name: 🛡️ Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔍 Run security scan
+      run: |
+        # Check for common security issues in HTML/JS
+        echo "🔍 Checking for potential security issues..."
+        
+        # Check for eval usage
+        if grep -n "eval(" standalone_cv_jd_evaluator.html; then
+          echo "⚠️  Warning: Found eval() usage - review for security"
+        fi
+        
+        # Check for innerHTML with user input
+        if grep -n "innerHTML.*input\|innerHTML.*value" standalone_cv_jd_evaluator.html; then
+          echo "⚠️  Warning: Potential XSS risk with innerHTML - verify sanitization"
+        fi
+        
+        # Check for external script sources
+        if grep -n "src=[\"']http" standalone_cv_jd_evaluator.html; then
+          echo "ℹ️  External resources found - verify they are necessary and secure"
+        fi
+        
+        echo "✅ Security scan completed"
+
+  validate-structure:
+    name: 📋 Validate Structure
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔍 Validate HTML structure
+      run: |
+        echo "🔍 Validating HTML structure..."
+        
+        # Check for required sections
+        required_sections=("header" "main" "footer" "LM Studio Configuration" "Input Section" "Analysis Options")
+        
+        for section in "${required_sections[@]}"; do
+          if ! grep -q "$section" standalone_cv_jd_evaluator.html; then
+            echo "❌ Missing required section: $section"
+            exit 1
+          else
+            echo "✅ Found section: $section"
+          fi
+        done
+        
+        # Check for required functionality
+        required_functions=("CVJobMatcherStandalone" "analyzeText" "exportText" "testLMStudioConnection")
+        
+        for func in "${required_functions[@]}"; do
+          if ! grep -q "$func" standalone_cv_jd_evaluator.html; then
+            echo "❌ Missing required function: $func"
+            exit 1
+          else
+            echo "✅ Found function: $func"
+          fi
+        done
+        
+        echo "✅ HTML structure validation completed"
+
+  test-file-integrity:
+    name: 🧪 Test File Integrity
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: 🧪 Test file can be loaded
+      run: |
+        echo "🧪 Testing file integrity..."
+        
+        # Check if file exists and is readable
+        if [ ! -f "standalone_cv_jd_evaluator.html" ]; then
+          echo "❌ Main HTML file not found"
+          exit 1
+        fi
+        
+        # Check file size (should be reasonable)
+        file_size=$(wc -c < standalone_cv_jd_evaluator.html)
+        echo "📏 File size: $file_size bytes"
+        
+        if [ "$file_size" -lt 10000 ]; then
+          echo "❌ File seems too small"
+          exit 1
+        fi
+        
+        if [ "$file_size" -gt 5000000 ]; then
+          echo "⚠️  Warning: File is quite large (>5MB)"
+        fi
+        
+        # Test basic HTML validity
+        if ! grep -q "<!DOCTYPE html>" standalone_cv_jd_evaluator.html; then
+          echo "❌ Missing DOCTYPE declaration"
+          exit 1
+        fi
+        
+        if ! grep -q "<html" standalone_cv_jd_evaluator.html; then
+          echo "❌ Missing HTML tag"
+          exit 1
+        fi
+        
+        if ! grep -q "</html>" standalone_cv_jd_evaluator.html; then
+          echo "❌ Missing closing HTML tag"
+          exit 1
+        fi
+        
+        echo "✅ File integrity test passed"
+
+  check-dependencies:
+    name: 📦 Check Dependencies
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔍 Check external dependencies
+      run: |
+        echo "🔍 Checking external dependencies..."
+        
+        # Extract all external URLs
+        external_urls=$(grep -o 'https\?://[^"'\'' ]*' standalone_cv_jd_evaluator.html || true)
+        
+        if [ -z "$external_urls" ]; then
+          echo "✅ No external dependencies found"
+        else
+          echo "📦 External dependencies found:"
+          echo "$external_urls"
+          
+          # Test if external resources are accessible
+          for url in $external_urls; do
+            echo "🔍 Testing: $url"
+            if curl -s --head "$url" | grep "200 OK" > /dev/null; then
+              echo "✅ $url - OK"
+            else
+              echo "⚠️  $url - May not be accessible"
+            fi
+          done
+        fi
+
+  documentation-check:
+    name: 📚 Documentation Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔍 Check documentation completeness
+      run: |
+        echo "🔍 Checking documentation..."
+        
+        required_files=("README.md" "LICENSE" "CONTRIBUTING.md" ".gitignore")
+        
+        for file in "${required_files[@]}"; do
+          if [ ! -f "$file" ]; then
+            echo "❌ Missing required file: $file"
+            exit 1
+          else
+            echo "✅ Found: $file"
+          fi
+        done
+        
+        # Check README sections
+        readme_sections=("Features" "Setup" "Usage" "Privacy" "Contributing")
+        
+        for section in "${readme_sections[@]}"; do
+          if ! grep -qi "$section" README.md; then
+            echo "⚠️  README may be missing section: $section"
+          else
+            echo "✅ README contains: $section"
+          fi
+        done
+        
+        echo "✅ Documentation check completed"
