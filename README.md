@@ -20,10 +20,6 @@ A **privacy-first**, standalone AI-powered CV and Job Description analysis tool 
 - **User-Friendly Interface**: Clean, modern web interface
 - **Standalone**: Single HTML file - no installation required
 
-## 📸 Screenshots
-
-*Add screenshots here showing the main interface and analysis results*
-
 ## 🔧 Prerequisites
 
 1. **LM Studio**: Download and install from [lmstudio.ai](https://lmstudio.ai/)
