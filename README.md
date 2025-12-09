@@ -1,4 +1,5 @@
 # Local CV-JD Evaluator 🔍
+[https://orand-advisors.com](https://www.orand-advisors.com/)
 
 A **privacy-first**, standalone AI-powered CV and Job Description analysis tool that runs entirely offline using LM Studio.
 
